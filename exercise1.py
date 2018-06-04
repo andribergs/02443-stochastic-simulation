@@ -1,10 +1,9 @@
-from random import random
+import random as rnd
 from math import sqrt
 import numpy as np
+import scipy as sp
 import matplotlib.pyplot as plt
 import statistics as st
-from scipy.stats import norm
-
 
 def LCG(a, c, M, x0, amount_to_generate=10000):
     x = [x0]
@@ -23,7 +22,6 @@ def histogram(x, n_bins=10):
 def scatterplot(rn):
     N = 100
     colors = np.random.rand(N)
-#    plt.scatter([random() for i in range(, rn[0::N], c=colors, alpha=0.5)
     plt.scatter(rn[1:][0::N], rn[:-1][0::N], c=colors, alpha=0.5)
     plt.title("Scatterplot")
     plt.show()
@@ -34,7 +32,6 @@ def chi_squared_test(rn, n_classes=10):
     total_stats = []
     for i in range(n_classes):
         n_observed = len([x for x in rn if x >= step*i and x < (step*i) + step])
-        print(n_observed)
         stat = ((n_observed - n_expected)**2) / n_expected
         total_stats.append(stat)
     test_stat = sum(total_stats)
@@ -59,15 +56,16 @@ def kolmogorov_smirnov_test(rn):
     check_result(test_stat, p_value)
 
 def run_test_I(rn):
-    mean = st.mean(rn)
-    n1 = len([x for x in rn if x > mean])
-    n2 = len([x for x in rn if x < mean])
-    runs = run_count(rn)
-    mu = 2*((n1*n2)/(n1+n2))+1
-    sigma2 = 2*((n1*n2*(2*n1*n2-n1-n2)) / ((n1+n2)**2 * (n1+n2-1)))
-    test_stat = (runs - mu) / sqrt(sigma2)
-    p_value = 0.55962 
-     
+    mean_cutoff = st.mean(rn)
+    run_size, all_runs = runs(rn)
+    n1 = len([x for x in rn if x > mean_cutoff])
+    n2 = len([x for x in rn if x < mean_cutoff])
+    mean = 2*((n1*n2)/(n1+n2))+1
+    variance = 2*((n1*n2*(2*n1*n2-n1-n2)) / ((n1+n2)**2 * (n1+n2-1)))
+    test_stat = (len(run_size) - mean) / sqrt(variance)
+    p_value = 1.64
+    
+    print(mean, variance, len(run_size))
     print("-----Run test I----")
     print("Test stat: {0}".format(test_stat))
     print("Normal distribution p-value, with alpha = 0.05 and Z-value = {0}: {1}".format(test_stat, p_value))
@@ -75,7 +73,8 @@ def run_test_I(rn):
 
 def run_test_II(rn):
     n = len(rn)
-    runs_less_or_equal_six = [x for x in runs(rn) if x <= 6]
+    run_size, all_runs = runs(rn)
+    runs_less_or_equal_six = [x for x in run_size if x <= 6]
     R = np.array([runs_less_or_equal_six.count(r) for r in range(1,7)])
     B = np.array([1/6, 5/24, 11/120, 19/720, 29/5040, 1/840])
     A = np.array(
@@ -97,33 +96,11 @@ def run_test_II(rn):
 def correlation_test(rn):
     a = 1 + 1
     
-    
-# Utility functions
-# -----------------
-def check_result(observed_stat, p_value):
-    if observed_stat < p_value:
-        print("Result: Test stat less than p_value -----> Passed ")
-    else:
-        print("Test stat greater than p_value -----> Failed ")
-    print("\n")
 
-def runs(rn):
-    run_length = 1
-    runs = []
-    for i in range(len(rn)-1):
-        if rn[i] < rn[i+1]:
-            run_length = run_length + 1
-        else:
-            runs.append(run_length)
-            run_length = 1
-    runs.append(run_length)
-    return runs
-
-def run_count(rn):
-    return len(runs(rn))
-# -----------------
+def test_lcg():
     
-def main():
+    print("Testing LCG")
+    
     #Values are pre-chosen to give some effect of randomness
     a = 129
     c = 26461
@@ -133,12 +110,29 @@ def main():
     #Generate 10000 pseudo-random numbers
     rn = LCG(a,c,M,x0)
     
+    run_tests(rn)
+
+def test_system_available_generator():
+    
+    print("Testing random uniform built-in function")
+    
+    #Generate 10000 pseudo-random numbers
+    rn = list(np.random.random_sample(10000))
+    
+    run_tests(rn)
+
+    
+# Utility functions
+# -----------------
+def run_tests(rn):
     #histogram
     histogram(rn)
     
     #scatterplot
     scatterplot(rn)
     
+    print("\n")
+        
     #chi squared test
     chi_squared_test(rn)
     
@@ -153,6 +147,40 @@ def main():
     
     #correlation test   
     correlation_test(rn)
+
+def check_result(observed_stat, p_value):
+    if observed_stat < p_value:
+        print("Result: Test stat less than p_value -----> Passed ")
+    else:
+        print("Test stat greater than p_value -----> Failed ")
+    print("\n")
+
+def runs(rn):
+    run_length = 1
+    run_size = []
+    run = []
+    runs = []
+    for i in range(len(rn)-1):
+        run.append(rn[i])
+        if rn[i] < rn[i+1]:
+            run_length = run_length + 1
+            if i == len(rn) - 2:
+                run.append(rn[i+1])
+        else:
+            run_size.append(run_length)
+            run_length = 1
+            runs.append(run)
+            run = []
+            
+    run_size.append(run_length)
+    runs.append(run)
+    
+    return (run_size, runs)
+# -----------------
+    
+def main():
+    test_lcg()
+    test_system_available_generator()
 
 if __name__ == "__main__":
     main()
