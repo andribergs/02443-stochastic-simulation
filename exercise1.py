@@ -3,6 +3,7 @@ from math import sqrt
 import numpy as np
 import matplotlib.pyplot as plt
 import statistics as st
+from scipy.stats import norm
 
 
 def LCG(a, c, M, x0, amount_to_generate=10000):
@@ -46,12 +47,9 @@ def chi_squared_test(rn, n_classes=10):
 
 def kolmogorov_smirnov_test(rn):
     n = len(rn)
-    #K_plus = max( [((rn.index(x)/n) - x) for x in rn] )
-    #K_minus = max( [(x - ((rn.index(x)-1)/n)) for x in rn] )
-    observed = rn
-    mu, sigma = 0, 0.1
-    expected = sorted(np.random.normal(mu, sigma, 10000))
-    D = max(abs(np.array(observed) - np.array(expected)))
+    empirical = rn
+    hypothized = np.linspace(0, 1, 10000)
+    D = max(abs(np.array(empirical) - np.array(hypothized)))
     test_stat = (sqrt(n) + 0.12 + (0.11/sqrt(n))) * D
     p_value = 1.36 / sqrt(n)
     
@@ -158,4 +156,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
