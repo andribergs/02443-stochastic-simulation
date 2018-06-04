@@ -46,11 +46,14 @@ def chi_squared_test(rn, n_classes=10):
 
 def kolmogorov_smirnov_test(rn):
     n = len(rn)
-    K_plus = sqrt(n) * max( [((rn.index(x)/n) - x) for x in rn] )
-    K_minus = sqrt(n) * max( [(x - ((rn.index(x)-1)/n)) for x in rn] )
-    D = max(K_plus, K_minus)
-    test_stat = D
-    p_value = 1.36
+    #K_plus = max( [((rn.index(x)/n) - x) for x in rn] )
+    #K_minus = max( [(x - ((rn.index(x)-1)/n)) for x in rn] )
+    observed = rn
+    mu, sigma = 0, 0.1
+    expected = sorted(np.random.normal(mu, sigma, 10000))
+    D = max(abs(np.array(observed) - np.array(expected)))
+    test_stat = (sqrt(n) + 0.12 + (0.11/sqrt(n))) * D
+    p_value = 1.36 / sqrt(n)
     
     print("-----Kolmogorov–Smirnov test-----")
     print("Test stat: {0}".format(test_stat))
@@ -65,11 +68,12 @@ def run_test_I(rn):
     mu = 2*((n1*n2)/(n1+n2))+1
     sigma2 = 2*((n1*n2*(2*n1*n2-n1-n2)) / ((n1+n2)**2 * (n1+n2-1)))
     test_stat = (runs - mu) / sqrt(sigma2)
-    p_value = "???"
+    p_value = 0.55962 
      
     print("-----Run test I----")
     print("Test stat: {0}".format(test_stat))
-    print("Normal distribution p-value, with alpha = 0.05: {0}".format(p_value))
+    print("Normal distribution p-value, with alpha = 0.05 and Z-value = {0}: {1}".format(test_stat, p_value))
+    check_result(test_stat, p_value)
 
 def run_test_II(rn):
     n = len(rn)
@@ -102,7 +106,7 @@ def check_result(observed_stat, p_value):
     if observed_stat < p_value:
         print("Result: Test stat less than p_value -----> Passed ")
     else:
-        print("Test stat greater than p_value -----> Falied ")
+        print("Test stat greater than p_value -----> Failed ")
     print("\n")
 
 def runs(rn):
