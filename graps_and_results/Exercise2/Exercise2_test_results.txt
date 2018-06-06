@@ -1,0 +1,3 @@
+---Geometric Distribution---
+Chi squared test
+Test stat: 12.092978065081159, p_value: 0.20811826696541189

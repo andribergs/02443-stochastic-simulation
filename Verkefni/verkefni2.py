@@ -58,7 +58,7 @@ def normo(mu,sigma,n):
         sine = np.sin(2*pi*Un)
         cose = np.cos(2*pi*Un)
         together = np.array([sine, cose])
-        G = [G, np.sqrt(-2*np.log(Un)*[sin_part, cos_part])] 
+        G.append(G, np.sqrt(-2*np.log(Un)*[sin_part, cos_part]))
         res = mu+sigma*G
     return res
     

@@ -1,4 +1,5 @@
-from math import sqrt, log, floor
+from math import log, floor
+from random import random
 import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
@@ -31,8 +32,19 @@ def six_point_crude_method(U):
         X.append(x_value)
     return X
     
-def six_point_rejection_method(U):
-    a = 1+1
+def six_point_rejection_method():
+    p_i = [7/48, 5/48, 1/8, 1/16, 1/4, 5/16]
+    q_i = [1/6 for _ in range(6)]
+    C = 2
+    n = len(p_i)
+    X = []
+    while len(X) < 10000:
+        y = 1 + floor(n * random.uniform(0,1))
+        u2 = random.uniform(0,1)
+        if u2 < (p_i[y]/C*q_i[j]):
+            X.append(y)
+    return X
+        
     
 def six_point_alias_method():
     a = 1+1
