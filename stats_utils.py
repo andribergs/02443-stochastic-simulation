@@ -1,7 +1,7 @@
 from scipy import stats
 import matplotlib.pyplot as plt
 
-def kolmogorov_smirnov(rn, dist):
+def kolmogorov_smirnov(rn, dist="norm"):
     return stats.kstest(rn, dist)
 
 def chi_squared_test(observed, expected):
@@ -14,3 +14,10 @@ def histogram(x, title="Histogram", n_bins=10):
     plt.ylabel("Amount in each bin")
     plt.show()
     return N, bins
+
+def sort_values_to_bins(v, n_bins=10):
+    step = max(v) / n_bins
+    n_observed = []
+    for i in range(n_bins):
+        n_observed.append(len([x for x in v if x >= step*i and x < (step*i) + step]))
+    return n_observed
