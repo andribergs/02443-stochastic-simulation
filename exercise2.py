@@ -1,6 +1,6 @@
 from math import sqrt, log, floor
 import numpy as np
-import scipy as sp
+from scipy import stats
 import matplotlib.pyplot as plt
 import stats_utils as utils
 
@@ -23,8 +23,16 @@ def main():
     rn = list(np.random.random_sample(10000))
     
     #Choose a value for p in the geometric distribution and simulate 10,000 outcomes.
-    X = geometric_distribution(rn, 0.5)
+    p = 0.5
+    X = geometric_distribution(rn, p)
+    Y = stats.geom.rvs(p, size=10000)
     N, bins = utils.histogram(X, "Simulated geometric distribution", max(X))
+    
+    n_observed = utils.sort_values_to_bins(X)
+    n_expected = utils.sort_values_to_bins(Y)
+    test_stat, p_chi = utils.chi_squared_test(n_observed, n_expected)
+    print("Chi squared test")
+    print("Test stat: {0}, p_value: {1}".format(test_stat, p_chi))
     
     
     #Simulate 6 point distribution using crude method
