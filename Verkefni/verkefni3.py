@@ -101,11 +101,9 @@ xlim1 = [np.min(llim1),np.max(ulim1)]
 plt.figure()
 plt.plot(ulim,np.zeros(m),'r>')
 plt.plot(llim,np.zeros(m),'b<')
-plt.xlim(xlim)
-plt.ylim(-0.1,0.1)
+plt.xlim(-2,2)
 plt.xlabel('Confidence intervals')
-plt.legend('toprightHello')
-
+plt.legend('UL')
 
 #%%
 #---- Pareto Distribution ----
