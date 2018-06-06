@@ -7,9 +7,9 @@ Created on Wed Jun  6 11:56:27 2018
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import pareto
+from scipy.stats import pareto, norm, expon
 
-
+#%%
 #---- Exponential Distribution ----
 """
 Generate simulated values from the following distributions
@@ -17,19 +17,23 @@ Generate simulated values from the following distributions
 • Verify the results by comparing histograms with analytical
 results and erform tests for distribution type.
 """
-def expo(lam):
-    U = np.random.uniform(0.0,1.0,10000)
+def expo(lam,U):
     res = (-np.log(U)/lam)
     return res
 
+
 #Rate parameter
+U = np.random.uniform(0.0,1.0,10000)
 lam = 1
-res = expo(lam)
-u = np.exp(U)
+res = expo(lam,U)
+x = np.linspace(expon.ppf(0),expon.ppf(0.99),100)
+
 
 #Histogram
-#Vantar að setja samanburðarlinu.
-plt.hist(res,align='mid',color='tan',edgecolor='moccasin',bins=100)
+plt.figure()
+plt.hist(res,align='mid',color='tan',edgecolor='moccasin',bins=10,density=True,stacked=True)
+xmin, xmax = plt.xlim()
+plt.plot(x, expon.pdf(x),'g-', lw=2,alpha=0.6)
 plt.title("Exponentially Distributed Histogram")
 plt.xlabel("Classes")
 plt.ylabel("Frequency")
@@ -64,9 +68,14 @@ mu = 0
 sigma = 1
 n = 10000
 res2 = normo(mu,sigma,n)
+mud, stdd = norm.fit(res2)
 #Histogram
-#Vantar að setja samanburðarlinu.
-plt.hist(res2,color='tan',align='mid',edgecolor='moccasin',bins=100)
+plt.figure()
+plt.hist(res2,color='tan',align='mid',edgecolor='moccasin',bins=10,density=True,stacked=True)
+xmin, xmax = plt.xlim()
+x = np.linspace(xmin, xmax, 100)
+p = norm.pdf(x, mud, stdd)
+plt.plot(x, p,'g-', lw=2,alpha=0.6)
 plt.title("Normal Distributed Histogram")
 plt.xlabel("Classes")
 plt.ylabel("Frequency")
@@ -84,27 +93,22 @@ for i in range(m):
     x = normo(0,1,n)
     x_bar = np.mean(x)
     z_star = stats.t.ppf(0.975,n-1)
-    #Vil eg nota einn eða s?
     upper = x_bar + z_star*(np.std(x)/np.sqrt(n))
     lower = x_bar - z_star*(np.std(x)/np.sqrt(n))
     ulim = np.append(ulim,upper)
     llim = np.append(llim,lower)
-    upper1 = x_bar + 1.96/np.sqrt(n)
-    lower1 = x_bar - 1.96/np.sqrt(n)
-    ulim1 = np.append(ulim1,upper1)
-    llim1 = np.append(llim1,lower1)
 
 xlim = [np.min(llim),np.max(ulim)]
-xlim1 = [np.min(llim1),np.max(ulim1)]
 
 # plot the upper and lower limit
+# Guggla border
 plt.figure()
-plt.plot(ulim,np.zeros(m),'r>')
-plt.plot(llim,np.zeros(m),'b<')
-plt.xlim(-2,2)
+plt.plot(ulim,np.zeros(m),'r>',alpha=0.5, label = "Upper")
+plt.plot(llim,np.zeros(m),'b<',alpha=0.5, label = "Lower")
+xmin, xmax = plt.xlim()
 plt.xlabel('Confidence intervals')
-plt.legend('UL')
-
+plt.legend()
+plt.show()
 #%%
 #---- Pareto Distribution ----
 """
@@ -131,8 +135,14 @@ k1 = 2.05; k2 = 2.5; k3 = 3; k4 = 4
 res31, mean1, var1 = paretobay(beta,k1,n)
 anamean1 = np.mean(res31)
 anavar1 = np.var(res31)
+
+x1 = np.linspace(pareto.ppf(0.01, k1),pareto.ppf(0.99,k1),100)
+
 plt.figure()
-plt.hist(res31,align='mid',color='tan',edgecolor='moccasin',bins=100)
+plt.hist(res31,align='mid',color='tan',edgecolor='moccasin',bins=100,density=True,stacked=True)
+xmin, xmax = plt.xlim()
+ymin, ymax = plt.ylim()
+plt.plot(x1-1, pareto.pdf(x1, k1),'g-', lw=2,alpha=0.6)
 plt.title("Pareto Distributed Histogram (k=2.05)")
 plt.xlabel("Classes")
 plt.ylabel("Frequency")
@@ -147,8 +157,14 @@ print('The analytical variance is: {0}'.format(anavar1))
 res32, mean2, var2 = paretobay(beta,k2,n)
 anamean2 = np.mean(res32)
 anavar2 = np.var(res32)
+
+x2 = np.linspace(pareto.ppf(0.01, k2),pareto.ppf(0.99,k2),100)
+
 plt.figure()
-plt.hist(res32,align='mid',color='tan',edgecolor='moccasin',bins=100)
+plt.hist(res32,align='mid',color='tan',edgecolor='moccasin',bins=100,density=True,stacked=True)
+xmin, xmax = plt.xlim()
+ymin, ymax = plt.ylim()
+plt.plot(x2-1, pareto.pdf(x2, k2),'g-', lw=2,alpha=0.6)
 plt.title("Pareto Distributed Histogram (k=2.5)")
 plt.xlabel("Classes")
 plt.ylabel("Frequency")
@@ -163,8 +179,14 @@ print('The analytical variance is: {0}'.format(anavar2))
 res33, mean3, var3 = paretobay(beta,k3,n)
 anamean3 = np.mean(res33)
 anavar3 = np.var(res33)
+
+x3 = np.linspace(pareto.ppf(0.01, k3),pareto.ppf(0.99,k3),100)
+
 plt.figure()
-plt.hist(res33,align='mid',color='tan',edgecolor='moccasin',bins=100)
+plt.hist(res33,align='mid',color='tan',edgecolor='moccasin',bins=100,density=True,stacked=True)
+xmin, xmax = plt.xlim()
+ymin, ymax = plt.ylim()
+plt.plot(x3-1, pareto.pdf(x3, k3),'g-', lw=2,alpha=0.6)
 plt.title("Pareto Distributed Histogram (k=3)")
 plt.xlabel("Classes")
 plt.ylabel("Frequency")
@@ -177,12 +199,18 @@ print('The analytical variance is: {0}'.format(anavar3))
 
 
 
-#Fyrsta dæmi
+#Fjorða dæmi
 res34, mean4, var4 = paretobay(beta,k4,n)
 anamean4 = np.mean(res34)
 anavar4 = np.var(res34)
+
+x4 = np.linspace(pareto.ppf(0.01, k4),pareto.ppf(0.99,k4),100)
+
 plt.figure()
-plt.hist(res34,align='mid',color='tan',edgecolor='moccasin',bins=100)
+plt.hist(res34,align='mid',color='tan',edgecolor='moccasin',bins=100,density=True,stacked=True)
+xmin, xmax = plt.xlim()
+ymin, ymax = plt.ylim()
+plt.plot(x4-1, pareto.pdf(x4, k4),'g-', lw=2,alpha=0.6)
 plt.title("Pareto Distributed Histogram (k=4)")
 plt.xlabel("Classes")
 plt.ylabel("Frequency")
