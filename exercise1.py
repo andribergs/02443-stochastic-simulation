@@ -44,10 +44,10 @@ def chi_squared_test(rn, n_classes=10):
 
 def kolmogorov_smirnov_test(rn):
     n = len(rn)
-    empirical = rn
-    hypothized = np.linspace(0, 1, 10000)
+    empirical = sorted(rn)
+    hypothized = np.linspace(0, 1, n)
     D = max(abs(np.array(empirical) - np.array(hypothized)))
-    test_stat = (sqrt(n) + 0.12 + (0.11/sqrt(n))) * D
+    test_stat =  (sqrt(n) + 0.12 + (0.11/sqrt(n))) * D
     p_value = 1.36 / sqrt(n)
     
     print("-----Kolmogorov–Smirnov test-----")
@@ -65,7 +65,6 @@ def run_test_I(rn):
     test_stat = (len(run_size) - mean) / sqrt(variance)
     p_value = 1.64
     
-    print(mean, variance, len(run_size))
     print("-----Run test I----")
     print("Test stat: {0}".format(test_stat))
     print("Normal distribution p-value, with alpha = 0.05 and Z-value = {0}: {1}".format(test_stat, p_value))
