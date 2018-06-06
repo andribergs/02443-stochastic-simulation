@@ -1,5 +1,5 @@
 from math import log, floor
-from random import random
+import random as random
 import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
@@ -12,6 +12,14 @@ def geometric_distribution(U, p):
 
 def histogram_comparison_2d(x, y, title="Histogram", n_bins=10):
     plt.hist([x,y], n_bins, alpha=0.5, label=["Simulated","Expected"], color=["blue", "red"])
+    plt.title(title)
+    plt.legend(loc='upper right')
+    plt.xlabel("Number of bins: {0}".format(n_bins))
+    plt.ylabel("Amount in each bin")
+    plt.show()
+    
+def histogram_comparison_3d(x, y, z, title="Histogram", n_bins=10):
+    plt.hist([x,y,z], n_bins, alpha=0.5, label=["Crude","Rejection", "Alias"], color=["blue", "red", "green"])
     plt.title(title)
     plt.legend(loc='upper right')
     plt.xlabel("Number of bins: {0}".format(n_bins))
@@ -39,15 +47,42 @@ def six_point_rejection_method():
     n = len(p_i)
     X = []
     while len(X) < 10000:
-        y = 1 + floor(n * random.uniform(0,1))
+        y = floor(n * random.uniform(0,1))
         u2 = random.uniform(0,1)
-        if u2 < (p_i[y]/C*q_i[j]):
+        if u2 < (p_i[y]/C*q_i[y]):
             X.append(y)
     return X
         
     
 def six_point_alias_method():
-    a = 1+1
+    #Generate F and L
+    p_i = [7/48, 5/48, 1/8, 1/16, 1/4, 5/16]
+    n = len(p_i)
+    F = [n*x for x in p_i]
+    L = [x for x in range(6)]
+    G = [i for i in range(len(F)) if F[i] >= 1]
+    S = [i for i in range(len(F)) if F[i] <= 1]
+    eps = 0.00000001
+    while len(S) != 0:
+        k = G[0]
+        j = S[0]
+        L[j] = k
+        F[k] = F[k] - (1 - F[j])
+        if F[k] < 1 - eps:
+            G = G[1:]
+            S.append(k)
+        S = S[1:]
+    
+    X = []
+    while len(X) < 10000:
+        y = floor(n * random.uniform(0,1))
+        u2 = random.uniform(0,1)
+        if u2 < F[y]:
+            X.append(y)
+        else:
+            X.append(L[y])
+    return X
+    
 
 def main():
     #Generate 10000 pseudo-random numbers
@@ -67,9 +102,11 @@ def main():
     print("Test stat: {0}, p_value: {1}".format(test_stat, p_chi))
     
     
-    #Simulate 6 point distribution using crude method
-    Z = six_point_crude_method(U)
-    utils.histogram(Z, "6 point distribution", 5)
+    #Simulate 6 point distribution using the crude, rejection and alias methods
+    Z_crude = six_point_crude_method(U)
+    Z_rejection = six_point_rejection_method()
+    Z_alias = six_point_alias_method()
+    histogram_comparison_3d(Z_crude, Z_rejection, Z_alias, "6 point distribution", 5)
 
 if __name__ == "__main__":
     main()
