@@ -85,8 +85,6 @@ plt.show
 # ----- Confidence intervals -----
 ulim = []
 llim = []
-ulim1 = ulim
-llim1 = llim
 n = 10 # 10 observations
 m = 100 # 100 Number of intervals
 for i in range(m):
