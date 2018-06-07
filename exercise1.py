@@ -13,7 +13,7 @@ def LCG(a, c, M, x0, amount_to_generate=10000):
 
 def histogram(x, n_bins=10):
     colors = ['blue', 'yellow', 'green', 'black', 'orange', 'purple', 'pink','red', 'tan', 'lime']
-    N, bins, patches = plt.hist(x, n_bins)
+    N, bins, patches = plt.hist(x, n_bins, alpha=0.5)
     for i in range(len(patches)):
         patches[i].set_facecolor(colors[i])
     plt.title("Histogram")
