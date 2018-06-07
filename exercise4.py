@@ -27,9 +27,9 @@ def event_simulation(n_su, mst, mtbc, n_sims, n_customers, arr_type, serv_type):
     arrival_dist_types = {
                 #interarrival intervals are exponentionally distributed when arrival process is a Poisson process
                 "poisson": lambda: stats.expon.rvs(size=n_customers, scale=mtbc),
-                "erlang": lambda: stats.erlang.rvs(2, size=n_customers, scale=mtbc),
+                "erlang": lambda: stats.erlang.rvs(1, size=n_customers, scale=mtbc),
                 #p_1 = 0.8, lambda_1 = 0.8333, p_2 = 0.2, lambda_2 = 5.0
-                "hyper_exp": 1+1
+                "hyper_exp": lambda: [stats.expon.rvs(scale=1/0.8333) if u < 0.8 else stats.expon.rvs(scale=1/5) for u in list(np.random.random_sample(10000))]
             }
     service_time_dist_types = {
                 "exp": lambda: stats.expon.rvs(size=n_customers, scale=mst)
@@ -91,7 +91,7 @@ def main():
     event_simulation_erlang_arrival(n_service_units, mean_service_time, mean_time_between_customers, n_simulations, n_customers)
     
     #Simulation with a renewal process using hyper exponential inter arrival times
-    #event_simulation_hyper_exponential_arrival(n_service_units, mean_service_time, mean_time_between_customers, n_simulations, n_customers)
+    event_simulation_hyper_exponential_arrival(n_service_units, mean_service_time, mean_time_between_customers, n_simulations, n_customers)
     
     #Exact solution
     print("Exact solution, percentage of blocked customers: {} %".format(erlang_B_formula(n_service_units, mean_time_between_customers, mean_service_time)* 100))
