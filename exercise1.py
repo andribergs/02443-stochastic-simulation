@@ -16,14 +16,12 @@ def histogram(x, n_bins=10):
     N, bins, patches = plt.hist(x, n_bins, alpha=0.5)
     for i in range(len(patches)):
         patches[i].set_facecolor(colors[i])
-    plt.figure()
     plt.title("Histogram")
     plt.show()
 
 def scatterplot(rn):
     N = 100
     colors = np.random.rand(N)
-    plt.figure()
     plt.scatter(rn[1:][0::N], rn[:-1][0::N], c=colors, alpha=0.5)
     plt.title("Scatterplot")
     plt.show()
