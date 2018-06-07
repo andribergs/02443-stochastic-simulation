@@ -22,25 +22,45 @@ def queue_simulation(n_su, mst, mtbc, n_customers, arrival_dist, service_time_di
 
     return blocked_customer_count
 
-def event_simulation_poisson_arrival(n_su, mst, mtbc, n_sims, n_customers):    
+def event_simulation(n_su, mst, mtbc, n_sims, n_customers, arr_type, serv_type): 
     results = []
+    arrival_dist_types = {
+                #interarrival intervals are exponentionally distributed when arrival process is a Poisson process
+                "poisson": lambda: stats.expon.rvs(size=n_customers, scale=mtbc),
+                "erlang": lambda: stats.erlang.rvs(2, size=n_customers, scale=mtbc),
+                #p_1 = 0.8, lambda_1 = 0.8333, p_2 = 0.2, lambda_2 = 5.0
+                "hyper_exp": 1+1
+            }
+    service_time_dist_types = {
+                "exp": lambda: stats.expon.rvs(size=n_customers, scale=mst)
+            }
+    
     for i in range(n_sims):
-        #interarrival intervals are exponentionally distributed when arrival process is a Poisson process
-        arrival_dist = stats.expon.rvs(size=n_customers, scale=mtbc)
-        service_time_dist = stats.expon.rvs(size=n_customers, scale=mst)
+        arrival_dist = arrival_dist_types[arr_type]()
+        service_time_dist = service_time_dist_types[serv_type]()
         blocked_customer_count = queue_simulation(n_su, mst, mtbc, n_customers, arrival_dist, service_time_dist)
         results.append(blocked_customer_count / n_customers)
         
     blocked_customers_fraction = sum(results) / n_sims
     confidence_intervals = calculate_confidence_intervals(st.mean(results), st.stdev(results), n_sims)
     
-    print("Simulation for when the arrival process is modelled as a Poisson process")
+    print("Simulation with the arrival process as {} and the service time distribution as {}".format(arr_type, serv_type))
     print("-------------------------------------------------------------------------")
     print("Percentage of blocked customers: {} %".format(blocked_customers_fraction * 100))
     print("Confidence interval, lower limit: {} %".format(confidence_intervals[0] * 100))
     print("Confidence interval, upper limit: {} %".format(confidence_intervals[1] * 100))
-    print("Exact solution, percentage of blocked customers: {} %".format(erlang_B_formula(n_su, mtbc, mst)* 100))
+    print("-------------------------------------------------------------------------")
+    print("\n")
 
+def event_simulation_poisson_arrival(n_su, mst, mtbc, n_sims, n_customers):    
+    event_simulation(n_su, mst, mtbc, n_sims, n_customers, "poisson", "exp")
+    
+def event_simulation_erlang_arrival(n_su, mst, mtbc, n_sims, n_customers):  
+    event_simulation(n_su, mst, mtbc, n_sims, n_customers, "erlang", "exp")
+    
+def event_simulation_hyper_exponential_arrival(n_su, mst, mtbc, n_sims, n_customers):
+    event_simulation(n_su, mst, mtbc, n_sims, n_customers, "hyper_exp", "exp")
+    
 def calculate_confidence_intervals(mean, standard_deviation, n_simulations):
     z_s = stats.t.ppf(0.95, n_simulations)
     lower = mean - z_s * (standard_deviation/sqrt(n_simulations))
@@ -67,6 +87,13 @@ def main():
     #Simulation for when the arrival process is modelled as a Poisson process
     event_simulation_poisson_arrival(n_service_units, mean_service_time, mean_time_between_customers, n_simulations, n_customers)
     
-
+    #Simulation with a renewal process using Erlang distributed inter arrival times
+    event_simulation_erlang_arrival(n_service_units, mean_service_time, mean_time_between_customers, n_simulations, n_customers)
+    
+    #Simulation with a renewal process using hyper exponential inter arrival times
+    #event_simulation_hyper_exponential_arrival(n_service_units, mean_service_time, mean_time_between_customers, n_simulations, n_customers)
+    
+    #Exact solution
+    print("Exact solution, percentage of blocked customers: {} %".format(erlang_B_formula(n_service_units, mean_time_between_customers, mean_service_time)* 100))
 if __name__ == "__main__":
     main()
