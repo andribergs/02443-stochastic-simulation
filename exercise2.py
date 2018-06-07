@@ -11,6 +11,7 @@ def geometric_distribution(U, p):
 
 
 def histogram_comparison_2d(x, y, title="Histogram", n_bins=10):
+    plt.figure()
     plt.hist([x,y], n_bins, alpha=0.5, label=["Simulated","Expected"], color=["blue", "red"])
     plt.title(title)
     plt.legend(loc='upper right')
@@ -19,6 +20,7 @@ def histogram_comparison_2d(x, y, title="Histogram", n_bins=10):
     plt.show()
     
 def histogram_comparison_3d(x, y, z, title="Histogram", n_bins=10):
+    plt.figure()
     plt.hist([x,y,z], n_bins, alpha=0.5, label=["Crude","Rejection", "Alias"], color=["blue", "red", "green"])
     plt.title(title)
     plt.legend(loc='upper right')
