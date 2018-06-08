@@ -32,7 +32,10 @@ def event_simulation(n_su, mst, mtbc, n_sims, n_customers, arr_type, serv_type):
                 "hyper_exp": lambda: [stats.expon.rvs(scale=1/0.8333) if u < 0.8 else stats.expon.rvs(scale=1/5) for u in list(np.random.random_sample(10000))]
             }
     service_time_dist_types = {
-                "exp": lambda: stats.expon.rvs(size=n_customers, scale=mst)
+                "exp": lambda: stats.expon.rvs(size=n_customers, scale=mst),
+                "constant": lambda: [mst for _ in range(n_customers)],
+                #k=1.05 or k=2.05 will make interesting choices
+                "pareto": lambda: [((mst*(2.05-1))/2.05) / (random.uniform(0,1)**(1/2.05)) for _ in range(n_customers)]
             }
     
     for i in range(n_sims):
@@ -60,6 +63,12 @@ def event_simulation_erlang_arrival(n_su, mst, mtbc, n_sims, n_customers):
     
 def event_simulation_hyper_exponential_arrival(n_su, mst, mtbc, n_sims, n_customers):
     event_simulation(n_su, mst, mtbc, n_sims, n_customers, "hyper_exp", "exp")
+    
+def event_simulation_constant_service(n_su, mst, mtbc, n_sims, n_customers):
+    event_simulation(n_su, mst, mtbc, n_sims, n_customers, "poisson", "constant")
+    
+def event_simulation_pareto_service(n_su, mst, mtbc, n_sims, n_customers):
+    event_simulation(n_su, mst, mtbc, n_sims, n_customers, "poisson", "pareto")
     
 def calculate_confidence_intervals(mean, standard_deviation, n_simulations):
     z_s = stats.t.ppf(0.95, n_simulations)
@@ -92,6 +101,12 @@ def main():
     
     #Simulation with a renewal process using hyper exponential inter arrival times
     event_simulation_hyper_exponential_arrival(n_service_units, mean_service_time, mean_time_between_customers, n_simulations, n_customers)
+    
+    #Simulation with constant service time
+    event_simulation_constant_service(n_service_units, mean_service_time, mean_time_between_customers, n_simulations, n_customers)
+    
+    #Simulation with Pareto distributed service times
+    event_simulation_pareto_service(n_service_units, mean_service_time, mean_time_between_customers, n_simulations, n_customers)
     
     #Exact solution
     print("Exact solution, percentage of blocked customers: {} %".format(erlang_B_formula(n_service_units, mean_time_between_customers, mean_service_time)* 100))
