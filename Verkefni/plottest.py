@@ -67,13 +67,11 @@ if __name__ == '__main__':
 
     # Create two paths, teh second with two values swapped to simulate a 2-OPT
     # Local Search operation
-    path4 = [0, 1, 2, 3, 4, 5, 6]
-    path3 = [0, 2, 1, 3, 4, 5, 6]
     path2 = [0, 2, 1, 3, 6, 5, 4]
     path1 = [0, 2, 1, 3, 6, 4, 5]
 
     # Pack the paths into a list
-    paths = [path1, path2, path3, path4]
+    paths = [path1, path2]
     
     # Run the function
-    plotTSP(paths, points, 4)
+    plotTSP(paths, points, 2)

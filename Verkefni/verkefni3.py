@@ -26,7 +26,7 @@ def expo(lam,U):
 U = np.random.uniform(0.0,1.0,10000)
 lam = 1
 res = expo(lam,U)
-x = np.linspace(expon.ppf(0),expon.ppf(0.99),100)
+x = np.linspace(expon.ppf(0),expon.ppf(0.99999),100)
 
 
 #Histogram
@@ -95,11 +95,11 @@ for i in range(m):
     lower = x_bar - z_star*(np.std(x)/np.sqrt(n))
     ulim = np.append(ulim,upper)
     llim = np.append(llim,lower)
+    
 
 xlim = [np.min(llim),np.max(ulim)]
 
 # plot the upper and lower limit
-# Guggla border
 plt.figure()
 plt.plot(ulim,np.zeros(m),'r>',alpha=0.5, label = "Upper")
 plt.plot(llim,np.zeros(m),'b<',alpha=0.5, label = "Lower")
@@ -107,6 +107,7 @@ xmin, xmax = plt.xlim()
 plt.xlabel('Confidence intervals')
 plt.legend()
 plt.show()
+
 #%%
 #---- Pareto Distribution ----
 """
@@ -129,12 +130,12 @@ n = 10000
 beta = 1
 k1 = 2.05; k2 = 2.5; k3 = 3; k4 = 4
 
-#Fyrsta dæmi
+#First k
 res31, mean1, var1 = paretobay(beta,k1,n)
 anamean1 = np.mean(res31)
 anavar1 = np.var(res31)
 
-x1 = np.linspace(pareto.ppf(0.01, k1),pareto.ppf(0.99,k1),100)
+x1 = np.linspace(pareto.ppf(0.01, k1),pareto.ppf(0.9999,k1),100)
 
 plt.figure()
 plt.hist(res31,align='mid',color='tan',edgecolor='moccasin',bins=20,density=True,stacked=True)
@@ -152,12 +153,12 @@ print('The theoretical variance is: {0}'.format(var1))
 print('The analytical mean is: {0}'.format(anamean1))
 print('The analytical variance is: {0}'.format(anavar1))
 
-#Annað dæmi
+#Second k
 res32, mean2, var2 = paretobay(beta,k2,n)
 anamean2 = np.mean(res32)
 anavar2 = np.var(res32)
 
-x2 = np.linspace(pareto.ppf(0.01, k2),pareto.ppf(0.99,k2),100)
+x2 = np.linspace(pareto.ppf(0.01, k2),pareto.ppf(0.9999,k2),100)
 
 plt.figure()
 plt.hist(res32,align='mid',color='tan',edgecolor='moccasin',bins=20,density=True,stacked=True)
@@ -175,12 +176,12 @@ print('The theoretical variance is: {0}'.format(var2))
 print('The analytical mean is: {0}'.format(anamean2))
 print('The analytical variance is: {0}'.format(anavar2))
 
-#Þriðja dæmi
+#Third k
 res33, mean3, var3 = paretobay(beta,k3,n)
 anamean3 = np.mean(res33)
 anavar3 = np.var(res33)
 
-x3 = np.linspace(pareto.ppf(0.01, k3),pareto.ppf(0.99,k3),100)
+x3 = np.linspace(pareto.ppf(0.01, k3),pareto.ppf(0.9999,k3),100)
 
 plt.figure()
 plt.hist(res33,align='mid',color='tan',edgecolor='moccasin',bins=20,density=True,stacked=True)
@@ -200,12 +201,12 @@ print('The analytical variance is: {0}'.format(anavar3))
 
 
 
-#Fjorða dæmi
+#Fourth k
 res34, mean4, var4 = paretobay(beta,k4,n)
 anamean4 = np.mean(res34)
 anavar4 = np.var(res34)
 
-x4 = np.linspace(pareto.ppf(0.01, k4),pareto.ppf(0.99,k4),100)
+x4 = np.linspace(pareto.ppf(0.01, k4),pareto.ppf(0.9999,k4),100)
 
 plt.figure()
 plt.hist(res34,align='mid',color='tan',edgecolor='moccasin',bins=20,density=True,stacked=True)
