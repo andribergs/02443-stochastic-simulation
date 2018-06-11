@@ -3,7 +3,7 @@ import random as random
 import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
-import stats_utils as utils
+from collections import Counter
 
 
 def geometric_distribution(U, p):
@@ -14,30 +14,29 @@ def histogram_comparison_2d(x, y, title="Histogram", n_bins=10):
     plt.hist([x,y], n_bins, alpha=0.5, label=["Simulated","Expected"], color=["blue", "red"])
     plt.title(title)
     plt.legend(loc='upper right')
-    plt.xlabel("Number of bins: {0}".format(n_bins))
-    plt.ylabel("Amount in each bin")
+    plt.xlabel("Classes")
+    plt.ylabel("Frequency")
     plt.show()
     
-def histogram_comparison_3d(x, y, z, title="Histogram", n_bins=10):
-    plt.hist([x,y,z], n_bins, alpha=0.5, label=["Crude","Rejection", "Alias"], color=["blue", "red", "green"])
+def histogram_comparison_4d(x, y, z, w, title="Histogram", n_bins=10):
+    plt.hist([x,y,z,w], n_bins, alpha=0.5, label=["Crude","Rejection", "Alias", "Expected"], color=["blue", "red", "green", "purple"])
     plt.title(title)
-    plt.legend(loc='upper right')
-    plt.xlabel("Number of bins: {0}".format(n_bins))
-    plt.ylabel("Amount in each bin")
+    plt.legend(loc='upper left')
+    plt.xlabel("Classes")
+    plt.ylabel("Frequency")
     plt.show()
 
 
 def six_point_crude_method(U):
     p_i = [7/48, 5/48, 1/8, 1/16, 1/4, 5/16]
-    x_i = [1, 2, 3, 4, 5, 6]
+    p_i_cumsum = np.cumsum(p_i).tolist()
     n = len(U)
     X = []
     for i in range(n):
-        if U[i] > max(p_i):
-            x_value = x_i[p_i.index(max(p_i))]
-        else:
-            x_value = x_i[p_i.index(min([x for x in p_i if x >= U[i]]))]
-        X.append(x_value)
+        for j in range(len(p_i)):
+            if U[i] <= p_i_cumsum[j]:
+                X.append(j+1)
+                break;
     return X
     
 def six_point_rejection_method():
@@ -47,9 +46,9 @@ def six_point_rejection_method():
     n = len(p_i)
     X = []
     while len(X) < 10000:
-        y = floor(n * random.uniform(0,1))
+        y = floor(n * random.uniform(0,1)) + 1
         u2 = random.uniform(0,1)
-        if u2 < (p_i[y]/C*q_i[y]):
+        if u2 < (p_i[y-1]/C*q_i[y-1]):
             X.append(y)
     return X
         
@@ -59,29 +58,33 @@ def six_point_alias_method():
     p_i = [7/48, 5/48, 1/8, 1/16, 1/4, 5/16]
     n = len(p_i)
     F = [n*x for x in p_i]
-    L = [x for x in range(6)]
+    L = [x for x in range(1, len(p_i) + 1)]
     G = [i for i in range(len(F)) if F[i] >= 1]
     S = [i for i in range(len(F)) if F[i] <= 1]
-    eps = 0.00000001
     while len(S) != 0:
         k = G[0]
         j = S[0]
         L[j] = k
         F[k] = F[k] - (1 - F[j])
-        if F[k] < 1 - eps:
+        if F[k] < 1:
             G = G[1:]
             S.append(k)
         S = S[1:]
     
     X = []
     while len(X) < 10000:
-        y = floor(n * random.uniform(0,1))
+        y = floor(n * random.uniform(0,1)) + 1
         u2 = random.uniform(0,1)
-        if u2 < F[y]:
+        if u2 < F[y-1]:
             X.append(y)
         else:
-            X.append(L[y])
+            X.append(L[y-1])
     return X
+
+def sort_values_to_bins(X, n_bins):
+    c_X = Counter(X)
+    n_observed = [c_X[x] if c_X[x] > 5 else 5 for x in range(1, n_bins + 1)] # for making scipy.stats.chisquare test work properly
+    return n_observed
     
 
 def main():
@@ -93,11 +96,9 @@ def main():
     X = geometric_distribution(U, p)
     Y = stats.geom.rvs(p, size=10000)
     histogram_comparison_2d(X, Y, "Geometric Distribution", max(max(X), max(Y)) - 1)
-    print(max(max(X), max(Y)))
 
-    n_observed = utils.sort_values_to_bins(X)
-    n_expected = utils.sort_values_to_bins(Y)
-    test_stat, p_chi = utils.chi_squared_test(n_observed, n_expected)
+    n_bins = max(max(X),max(Y))
+    test_stat, p_chi = stats.chisquare(sort_values_to_bins(X, n_bins), sort_values_to_bins(Y, n_bins))
     print("Chi squared test")
     print("Test stat: {0}, p_value: {1}".format(test_stat, p_chi))
     
@@ -106,7 +107,23 @@ def main():
     Z_crude = six_point_crude_method(U)
     Z_rejection = six_point_rejection_method()
     Z_alias = six_point_alias_method()
-    histogram_comparison_3d(Z_crude, Z_rejection, Z_alias, "6 point distribution", 5)
+    Z_expected = stats.rv_discrete(name='6point', values=(np.arange(1,7), (7/48, 5/48, 1/8, 1/16, 1/4, 5/16))).rvs(size=10000)
+    histogram_comparison_4d(Z_crude, Z_rejection, Z_alias, Z_expected, "6 point distribution", 5)
+    
+    n_bins_crude = max(max(Z_crude), max(Z_expected))
+    test_stat, p_chi = stats.chisquare(sort_values_to_bins(Z_crude, n_bins_crude), sort_values_to_bins(Z_expected, n_bins_crude))
+    print("Chi squared test for Crude")
+    print("Test stat: {0}, p_value: {1}".format(test_stat, p_chi))
+    
+    n_bins_rejection = max(max(Z_rejection), max(Z_expected))
+    test_stat, p_chi = stats.chisquare(sort_values_to_bins(Z_rejection, n_bins_rejection), sort_values_to_bins(Z_expected, n_bins_rejection))
+    print("Chi squared test for Rejection")
+    print("Test stat: {0}, p_value: {1}".format(test_stat, p_chi))
+    
+    n_bins_alias = max(max(Z_expected), max(Z_expected))
+    test_stat, p_chi = stats.chisquare(sort_values_to_bins(Z_alias, n_bins_alias), sort_values_to_bins(Z_expected, n_bins_alias))
+    print("Chi squared test for Alias")
+    print("Test stat: {0}, p_value: {1}".format(test_stat, p_chi))
 
 if __name__ == "__main__":
     main()
