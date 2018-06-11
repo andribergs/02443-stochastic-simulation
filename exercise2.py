@@ -19,7 +19,8 @@ def histogram_comparison_2d(x, y, title="Histogram", n_bins=10):
     plt.show()
     
 def histogram_comparison_4d(x, y, z, w, title="Histogram", n_bins=10):
-    plt.hist([x,y,z,w], n_bins, alpha=0.5, label=["Crude","Rejection", "Alias", "Expected"], color=["blue", "red", "green", "purple"])
+    plt.hist([x,y,z,w], n_bins, alpha=0.5, label=["Crude","Rejection", "Alias", "Expected"], 
+             color=["blue", "red", "green", "purple"])
     plt.title(title)
     plt.legend(loc='upper left')
     plt.xlabel("Classes")
@@ -83,7 +84,8 @@ def six_point_alias_method():
 
 def sort_values_to_bins(X, n_bins):
     c_X = Counter(X)
-    n_observed = [c_X[x] if c_X[x] > 5 else 5 for x in range(1, n_bins + 1)] # for making scipy.stats.chisquare test work properly
+     # for making scipy.stats.chisquare test work properly
+    n_observed = [c_X[x] if c_X[x] > 5 else 5 for x in range(1, n_bins + 1)]
     return n_observed
     
 
@@ -98,7 +100,8 @@ def main():
     histogram_comparison_2d(X, Y, "Geometric Distribution", max(max(X), max(Y)) - 1)
 
     n_bins = max(max(X),max(Y))
-    test_stat, p_chi = stats.chisquare(sort_values_to_bins(X, n_bins), sort_values_to_bins(Y, n_bins))
+    test_stat, p_chi = stats.chisquare(sort_values_to_bins(X, n_bins), 
+                                       sort_values_to_bins(Y, n_bins))
     print("Chi squared test")
     print("Test stat: {0}, p_value: {1}".format(test_stat, p_chi))
     
@@ -107,21 +110,25 @@ def main():
     Z_crude = six_point_crude_method(U)
     Z_rejection = six_point_rejection_method()
     Z_alias = six_point_alias_method()
-    Z_expected = stats.rv_discrete(name='6point', values=(np.arange(1,7), (7/48, 5/48, 1/8, 1/16, 1/4, 5/16))).rvs(size=10000)
+    Z_expected = stats.rv_discrete(name='6point', 
+                                   values=(np.arange(1,7), (7/48, 5/48, 1/8, 1/16, 1/4, 5/16))).rvs(size=10000)
     histogram_comparison_4d(Z_crude, Z_rejection, Z_alias, Z_expected, "6 point distribution", 5)
     
     n_bins_crude = max(max(Z_crude), max(Z_expected))
-    test_stat, p_chi = stats.chisquare(sort_values_to_bins(Z_crude, n_bins_crude), sort_values_to_bins(Z_expected, n_bins_crude))
+    test_stat, p_chi = stats.chisquare(sort_values_to_bins(Z_crude, n_bins_crude), 
+                                       sort_values_to_bins(Z_expected, n_bins_crude))
     print("Chi squared test for Crude")
     print("Test stat: {0}, p_value: {1}".format(test_stat, p_chi))
     
     n_bins_rejection = max(max(Z_rejection), max(Z_expected))
-    test_stat, p_chi = stats.chisquare(sort_values_to_bins(Z_rejection, n_bins_rejection), sort_values_to_bins(Z_expected, n_bins_rejection))
+    test_stat, p_chi = stats.chisquare(sort_values_to_bins(Z_rejection, n_bins_rejection), 
+                                       sort_values_to_bins(Z_expected, n_bins_rejection))
     print("Chi squared test for Rejection")
     print("Test stat: {0}, p_value: {1}".format(test_stat, p_chi))
     
     n_bins_alias = max(max(Z_expected), max(Z_expected))
-    test_stat, p_chi = stats.chisquare(sort_values_to_bins(Z_alias, n_bins_alias), sort_values_to_bins(Z_expected, n_bins_alias))
+    test_stat, p_chi = stats.chisquare(sort_values_to_bins(Z_alias, n_bins_alias), 
+                                       sort_values_to_bins(Z_expected, n_bins_alias))
     print("Chi squared test for Alias")
     print("Test stat: {0}, p_value: {1}".format(test_stat, p_chi))
 
