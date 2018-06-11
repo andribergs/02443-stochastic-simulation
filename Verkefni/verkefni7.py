@@ -26,7 +26,7 @@ def obj_calc(Sample):
 def swap(Sample):
     random1 = 0
     random2 = 0
-    n = 20 #n = 6 eða 20
+    n = 20 #n = 6 or 20
     while(random1 == random2):
         random1 = np.int(np.floor(np.random.uniform(0,n,1)))
         random2 = np.int(np.floor(np.random.uniform(0,n,1)))
@@ -36,9 +36,8 @@ def swap(Sample):
     return t
 
 #%% - Travelling salesman from exercise
-Initial = np.arange(6)
-Route = np.arange(6)
-Initial = random.sample(range(6),6)
+InState = np.arange(6)
+TestState = random.sample(range(6),6)
 #Sample = my_shuffle(Route)
 distmatTS = np.array([[0, 5,3,1,4,12],
                       [2,0,22,11,13, 30],
@@ -46,53 +45,22 @@ distmatTS = np.array([[0, 5,3,1,4,12],
                       [33,9,5,0,60,17],
                       [1,15,6,10,0,14],
                       [24,6,8,9,40,0]])
-
-
-InTot, InStates = obj_calc(Initial) 
-
-
-#obj_counter = obj_calc(Sample)      
-
-Tk = 1
-k = 1
-GB = 99999
-
-Obj = 0
-
-
-Obj1 = InTot
-BestR = InStates
-BestScore = Obj1
-AllScore = InTot
-
-for j in range(10000):
-    temp = swap(Route)
-    Obj2, Obj2States = obj_calc(Route)
-    AllScore = np.append(AllScore,Obj2)
-    print(j)
-    #Check if we better the score
-    if (Obj2 < Obj1):
-        BestScore = np.append(BestScore,Obj2)
-        Obj1 = Obj2
-        BestR = Obj2States    
-    else:
-        Obj2 = Obj1
-   
-print("The best score we can obtain is {0}".format(Obj1))
-
 #%% - Other cost matrix from internet
         
 
-filePath = '/home/thorsteinngj/02443-stochastic-simulation/Verkefni/fylki.txt'
+filePath = '/zhome/2e/9/124284/Term2/02443-stochastic-simulation/Verkefni/fylki.txt'
 
 cost = pd.read_table(filePath, sep = "\s+", header=0, index_col = 0)
 distmatTS = np.array(cost)
-
-for i in range(20):
+Wow = []
+TestState = random.sample(range(20),20)  #initial_states
+for i in range(5):
     InState = np.arange(20)
-    TestState = random.sample(range(20),20) #initial_states
+    
     InRes,InRoute = obj_calc(InState) #calculate_obj (res)
     TestRes, TestRoute = obj_calc(TestState)
+    
+#Sample = my_shuffle(Route)
     #CurrRoute = TestRoute #CurrRoute hja hring
     OldRes = TestRes
     OldRoute = TestRoute
@@ -107,25 +75,28 @@ for i in range(20):
         NewState = swap(TestState)
         NewRes, NewRoute = obj_calc(NewState)
         AllRes = np.append(AllRes, OldRes)
-        EveryRes = np.append(EveryRes, NewRes)
         Exp_stat = np.exp(-(NewRes-OldRes)/T)
         Rand = np.random.uniform(0,1,1)
         if (OldRes > NewRes):
             OldRes = NewRes
             TestState = NewState
+            EveryRes = np.append(EveryRes, NewRes)
         elif (Rand < Exp_stat):
             OldRes = NewRes
             TestState = NewState
+            EveryRes = np.append(EveryRes, NewRes)
         if NewRes < globalBest:
             globalBest = OldRes
             BestRoute = TestState
             BestRes = np.append(BestRes, globalBest)
+            EveryRes = np.append(EveryRes, NewRes)
             loc.append(j)
-        
-        drasl = []
-        drasl = np.append(drasl,T)
+    
         T = T/np.sqrt(1+k)
         k = k*1.005
+    Res = BestRoute        
+    TestState = BestRoute
+    Wow = np.append(Wow,BestRes[-1])
         
 print("-----Travelling Salesman with 20 cities-----")
 print("The best score we can obtain is {0}".format(BestRes[-1]))
@@ -134,12 +105,10 @@ Result = np.append(BestRoute,BestRoute[0])
 #%%
 x = np.arange(np.size(AllRes))
 plt.figure()
-plt.plot(x,AllRes,'k*',ls='dotted')
+plt.plot(x,AllRes,'k*')
+plt.xlabel('Number of iterations')
+plt.ylabel('Score')
 
-EveryRes = sorted(EveryRes, reverse=True)
-
-plt.figure()
-plt.plot(x,EveryRes)
 #%%
 def plotTSP(paths, points, num_iters=1):
 
@@ -150,7 +119,7 @@ def plotTSP(paths, points, num_iters=1):
     
     """
 
-    # Unpack the primary TSP path and transform it into a list of ordered 
+    # Unpack the primary TSP path and transfopath1rm it into a list of ordered 
     # coordinates
 
     x = []; y = []
@@ -159,6 +128,7 @@ def plotTSP(paths, points, num_iters=1):
         y.append(points[i][1])
     
     plt.plot(x, y, 'co')
+
 
     # Set a scale for the arrow heads (there should be a reasonable default for this, WTF?)
     a_scale = float(max(x))/float(100)
@@ -191,38 +161,20 @@ def plotTSP(paths, points, num_iters=1):
                 color = 'g', length_includes_head = True)
 
     #Set axis too slitghtly larger than the set of x and y
-    plt.xlim(0, max(x)*1.1)
-    plt.ylim(0, max(y)*1.1)
+    plt.xlim(min(x)*1.1, max(x)*1.1)
+    plt.ylim(min(y)*1.1, max(y)*1.1)
     plt.show()
 
-x_cor = np.random.randint(0,20,21)
-y_cor = np.random.randint(0,20,21)
+x_cor =[0,2,4,6,8,10,12,14,16,18,20,18,16,14,12,10,8,6,4,2]
+y_cor = [0,2,4,6,8,10,12,14,16,18,0,-18,-16,-14,-12,-10,-8,-6,-4,-2]
 points = []
 for i in range(0, len(x_cor)):
     points.append(([x_cor[i],y_cor[i]]))
     
-path1 = list(InRoute)
+"path3 = list(InRoute[0:-1])
 #path2 = list(TestRoute)
-path3 = list(Result)
+path1 = list(Result[0:-1])
 
-paths = [path1,path3]
+paths = [path1]
 
-plotTSP(paths,points,2)
-
-#%%
-
-
-
-
-#Implement simulated annealing for the travelling salesman.
-#Have input be positions in plane of the n stations.
-#Let the cost of going i to j be the Euclidian distance between
-#station i and j.
-#As cooling scheme, use e.g. Tk = 1/√(1 + k).
-#The route must end where it started.
-#Initialise with a random permutation of stations.
-#As proposal, permute two random stations on the route.
-#Plot the resulting route in the plane.
-#Debug with stations on a circle. Then modify your progamme to
-#work with costs directly and apply it to the cost matrix from the
-#course homepage.
+plotTSP(paths,points,1)
