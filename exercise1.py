@@ -13,10 +13,12 @@ def LCG(a, c, M, x0, amount_to_generate=10000):
 
 def histogram(x, n_bins=10):
     colors = ['blue', 'yellow', 'green', 'black', 'orange', 'purple', 'pink','red', 'tan', 'lime']
-    N, bins, patches = plt.hist(x, n_bins, alpha=0.5)
+    N, bins, patches = plt.hist(x, n_bins)
     for i in range(len(patches)):
         patches[i].set_facecolor(colors[i])
     plt.title("Histogram")
+    plt.xlabel("Classes")
+    plt.ylabel("Frequency")
     plt.show()
 
 def scatterplot(rn):
@@ -24,6 +26,8 @@ def scatterplot(rn):
     colors = np.random.rand(N)
     plt.scatter(rn[1:][0::N], rn[:-1][0::N], c=colors, alpha=0.5)
     plt.title("Scatterplot")
+    plt.xlabel("U_i+1")
+    plt.ylabel("U_i")
     plt.show()
     
 def chi_squared_test(rn, n_classes=10):
@@ -35,12 +39,9 @@ def chi_squared_test(rn, n_classes=10):
         stat = ((n_observed - n_expected)**2) / n_expected
         total_stats.append(stat)
     test_stat = sum(total_stats)
-    p_value = 3.32511 #alpha = 0.05, 0.950 p-value for chi squared distribution n_classes - 1 df.
     
     print("-----Chi squared test-----")
     print("Test stat: {0}".format(test_stat))
-    print("Chi squared dist p-value, with alpha = 0.05 and {0} df: {1}".format(n_classes - 1, p_value))
-    check_result(test_stat, p_value)
 
 def kolmogorov_smirnov_test(rn):
     n = len(rn)
@@ -48,12 +49,9 @@ def kolmogorov_smirnov_test(rn):
     hypothized = np.linspace(0, 1, n)
     D = max(abs(np.array(empirical) - np.array(hypothized)))
     test_stat =  (sqrt(n) + 0.12 + (0.11/sqrt(n))) * D
-    p_value = 1.36 / sqrt(n)
     
     print("-----Kolmogorov–Smirnov test-----")
     print("Test stat: {0}".format(test_stat))
-    print("Kolmogorov-smirnov dist p-value, with alpha = 0.05: {0}".format(p_value))
-    check_result(test_stat, p_value)
 
 def run_test_I(rn):
     mean_cutoff = st.mean(rn)
@@ -63,12 +61,9 @@ def run_test_I(rn):
     mean = 2*((n1*n2)/(n1+n2))+1
     variance = 2*((n1*n2*(2*n1*n2-n1-n2)) / ((n1+n2)**2 * (n1+n2-1)))
     test_stat = (len(run_size) - mean) / sqrt(variance)
-    p_value = 1.64
     
     print("-----Run test I----")
     print("Test stat: {0}".format(test_stat))
-    print("Normal distribution p-value, with alpha = 0.05 and Z-value = {0}: {1}".format(test_stat, p_value))
-    check_result(test_stat, p_value)
 
 def run_test_II(rn):
     n = len(rn)
@@ -85,15 +80,9 @@ def run_test_II(rn):
              [27892, 55789, 83685, 111580, 139476, 172860]], dtype=float)
     vector_term = R - n*B
     test_stat = (1/(n-6)) * np.dot(vector_term.T, np.dot(A, vector_term))
-    p_value = 1.64 #alpha = 0.05, 0.950 p-value for chi squared distribution with 6 df.
     
     print("-----Run test II----")
     print("Test stat: {0}".format(test_stat))
-    print("Chi squared dist p-value, with alpha = 0.05 and 6 df: {0}".format(p_value))
-    check_result(test_stat, p_value)
-
-def correlation_test(rn):
-    a = 1 + 1
     
 
 def test_lcg():
@@ -143,16 +132,7 @@ def run_tests(rn):
     
     #run test II
     run_test_II(rn)
-    
-    #correlation test   
-    correlation_test(rn)
 
-def check_result(observed_stat, p_value):
-    if observed_stat < p_value:
-        print("Result: Test stat less than p_value -----> Passed ")
-    else:
-        print("Test stat greater than p_value -----> Failed ")
-    print("\n")
 
 def runs(rn):
     run_length = 1

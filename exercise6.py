@@ -161,12 +161,14 @@ def main():
     plt.show()
     
     #Chi squared test for X_joint_coordinate_wise and Y_joint_coordinate_wise
-    density_X_joint_coordinate_wise = [x/10000 for x in utils.sort_values_to_bins(X_joint_coordinate_wise)]
+    density_X_joint_coordinate_wise = [x/10000 for x in 
+                                       utils.sort_values_to_bins(X_joint_coordinate_wise)]
     test_stat, p_chi = utils.chi_squared_test(density_X_joint_coordinate_wise, Y)
     print("Chi squared test for X_joint_coordinate_wise")
     print("Test stat: {0}, p_value: {1}".format(test_stat, p_chi))
     
-    density_Y_joint_coordinate_wise = [y/10000 for y in utils.sort_values_to_bins(Y_joint_coordinate_wise)]
+    density_Y_joint_coordinate_wise = [y/10000 for y in 
+                                       utils.sort_values_to_bins(Y_joint_coordinate_wise)]
     test_stat, p_chi = utils.chi_squared_test(density_Y_joint_coordinate_wise, Y)
     print("Chi squared test for Y_joint_coordinate_wise")
     print("Test stat: {0}, p_value: {1}".format(test_stat, p_chi))
